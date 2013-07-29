@@ -1,9 +1,9 @@
 <?php
 /* Subscribable Test */
-App::uses('SubscribableBehavior', 'Mail.Model/Behavior');
+App::uses('SubscribableBehavior', 'Subscribers.Model/Behavior');
 
-if (!class_exists('MailArticle')) {
-	class MailArticle extends CakeTestModel {
+if (!class_exists('SubscriberArticle')) {
+	class SubscriberArticle extends CakeTestModel {
 	/**
 	 *
 	 */
@@ -13,25 +13,25 @@ if (!class_exists('MailArticle')) {
 	 *
 	 */
 		public $actsAs = array(
-			'Mail.Subscribable'
+			'Subscribers.Subscribable'
 			);
 	/**
 	 *
 	 */
-		public $useTable = 'mail_articles';
+		public $useTable = 'subscriber_articles';
 
 	/**
 	 *
 	 */
-		public $name = 'MailArticle';
+		public $name = 'SubscriberArticle';
 	/**
 	 *
 	 */
-		public $alias = 'MailArticle';
+		public $alias = 'SubscriberArticle';
 		
 		public function afterSave() {
 			// we say in the model when people get subscribed
-			$this->subscribe($this->data['MailArticle']['creator_id']);
+			$this->subscribe($this->data['SubscriberArticle']['creator_id']);
 		}
 	}
 }
@@ -50,8 +50,8 @@ class SubscribableBehaviorTestCase extends CakeTestCase {
 	public $fixtures = array(
 		'app.Condition',
 		'plugin.Users.User',
-		'plugin.Mail.MailSubscribe',
-		'plugin.Mail.MailArticle',
+		'plugin.Subscribers.Subscribe',
+		'plugin.Subscribers.SubscriberArticle',
 		);
 
 /**
@@ -63,8 +63,8 @@ class SubscribableBehaviorTestCase extends CakeTestCase {
 		parent::setUp();
 
 		//$this->Subscribable = new SubscribableBehavior();
-		$this->MailArticle = new MailArticle;
-		$this->MailSubscriber = new MailSubscriber;
+		$this->SubscriberArticle = ClassRegistry::init('SubscriberArticle');
+		$this->Subscriber = ClassRegistry::init('Subscribers.Subscriber');
 	}
 
 /**
@@ -74,8 +74,8 @@ class SubscribableBehaviorTestCase extends CakeTestCase {
  */
     public function tearDown() {
 		//unset($this->Draftable);
-		unset($this->MailArticle);
-		unset($this->MailSubscriber);
+		unset($this->SubscriberArticle);
+		unset($this->Subscriber);
 		ClassRegistry::flush();
 
 		parent::tearDown();
@@ -88,21 +88,21 @@ class SubscribableBehaviorTestCase extends CakeTestCase {
  * @return void
  */
 	public function testBehaviorInstance() {
-		$this->assertTrue(is_a($this->MailArticle->Behaviors->Subscribable, 'SubscribableBehavior'));
+		$this->assertTrue(is_a($this->SubscriberArticle->Behaviors->Subscribable, 'SubscribableBehavior'));
 	}
 	
 /**
  * Test adding an article and subscribing the adder to that article
  */ 
 	public function testAdding() {
-		$before = count($this->MailSubscriber->find('all'));
-		$data['MailArticle'] = array(
+		$before = count($this->Subscriber->find('all'));
+		$data['SubscriberArticle'] = array(
 			'title' => 'My New Article',
 			'content' => 'Hello world!',
 			'creator_id' => '100'
 			);
-		$this->MailArticle->save($data);
-		$after = count($this->MailSubscriber->find('all'));
+		$this->SubscriberArticle->save($data);
+		$after = count($this->Subscriber->find('all'));
 		
 		$this->assertTrue($after > $before);
 	}

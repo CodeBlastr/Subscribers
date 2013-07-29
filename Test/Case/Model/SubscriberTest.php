@@ -1,18 +1,18 @@
 <?php
-App::uses('MailSubscribe', 'Mail.Model');
+App::uses('Subscriber', 'Subscribers.Model');
 
 /**
- * Project Test Case
+ * Subscriber Test Case
  *
  */
-class MailSubscriberTestCase extends CakeTestCase {
+class SubscriberTestCase extends CakeTestCase {
 /**
  * Fixtures
  *
  * @var array
  */
 	public $fixtures = array(
-        'plugin.Mail.MailSubscriber',
+        'plugin.Subscribers.Subscriber',
         );
 
 /**
@@ -22,7 +22,7 @@ class MailSubscriberTestCase extends CakeTestCase {
  */
 	public function setUp() {
 		parent::setUp();
-		$this->MailSubscriber = ClassRegistry::init('Mail.MailSubscriber');
+		$this->Subscriber = ClassRegistry::init('Subscribers.Subscriber');
 	}
 
 /**
@@ -31,7 +31,7 @@ class MailSubscriberTestCase extends CakeTestCase {
  * @return void
  */
 	public function tearDown() {
-		unset($this->MailSubscriber);
+		unset($this->Subscriber);
 
 		parent::tearDown();
 	}
@@ -41,7 +41,7 @@ class MailSubscriberTestCase extends CakeTestCase {
  *
  */
 	public function testSubscribers() {
-		$result = $this->MailSubscriber->find('all');
+		$result = $this->Subscriber->find('all');
 		debug($result);
 		break;
 	}

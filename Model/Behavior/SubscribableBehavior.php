@@ -10,7 +10,7 @@ App::uses('ModelBehavior', 'Model');
  * @author			Richard Kersey
  * @copyright       Buildrr LLC
  * @license			http://www.opensource.org/licenses/mit-license.php The MIT License
- * @link            https://github.com/zuha/Mail-Zuha-Cakephp-Plugin
+ * @link            https://github.com/zuha/Subscribers-Zuha-Cakephp-Plugin
  */
 class SubscribableBehavior extends ModelBehavior {
 
@@ -65,7 +65,7 @@ class SubscribableBehavior extends ModelBehavior {
     	$this->settings = array_merge($this->defaults, $config);
 		$this->modelName = !empty($this->settings['modelAlias']) ? $this->settings['modelAlias'] : $Model->alias;
 		$this->foreignKey =  !empty($this->settings['foreignKeyName']) ? $this->settings['foreignKeyName'] : $Model->primaryKey;
-		$this->MailSubscriber = ClassRegistry::init('Mail.MailSubscriber');
+		$this->Subscriber = ClassRegistry::init('Subscribers.Subscriber');
     	return true;
 	}
 	
@@ -81,8 +81,8 @@ class SubscribableBehavior extends ModelBehavior {
  	public function subscribe($Model, $userIds) {
 		if (is_array($userIds)) {
 			for ($i = 1; $i <= count($userIds); $i++) {
-				$data[$i]['MailSubscriber']['user_id'] = $userIds[$i];
-				$data[$i]['MailSubscriber']['email'];
+				$data[$i]['Subscriber']['user_id'] = $userIds[$i];
+				$data[$i]['Subscriber']['email'];
 				
 			}
 			debug($data);
@@ -90,13 +90,13 @@ class SubscribableBehavior extends ModelBehavior {
 			break;
 		} else {
 			$userId = $userIds; // just one
-			$data['MailSubscriber']['user_id'] = $userId;
-			$data['MailSubscriber']['email'] = !empty($data['MailSubscriber']['email']) ? $data['MailSubscriber']['email'] : $this->MailSubscriber->Subscriber->field('email', array('Subscriber.id' => $userId));
-			$data['MailSubscriber']['model'] = $this->modelName;
-			$data['MailSubscriber']['foreign_key'] = $Model->data[$this->modelName][$this->foreignKey];
-			$data['MailSubscriber']['is_active'] = 1;
+			$data['Subscriber']['user_id'] = $userId;
+			$data['Subscriber']['email'] = !empty($data['Subscriber']['email']) ? $data['Subscriber']['email'] : $this->Subscriber->User->field('email', array('User.id' => $userId));
+			$data['Subscriber']['model'] = $this->modelName;
+			$data['Subscriber']['foreign_key'] = $Model->data[$this->modelName][$this->foreignKey];
+			$data['Subscriber']['is_active'] = 1;
 		}
-		if ($this->MailSubscriber->saveAll($data)) {
+		if ($this->Subscriber->saveAll($data)) {
 			return true;
 		}
 		return false;
@@ -112,7 +112,7 @@ class SubscribableBehavior extends ModelBehavior {
 		$foreignKey = $data[$model][$this->$this->foreignKey];
 		debug($model);
 		debug($foreignKey);
-		debug($this->MailSubscriber->find('all', array('conditions' => array('MailSubscriber.model' => $model, 'MailSubscriber.foreign_key' => $foreignKey))));
+		debug($this->Subscriber->find('all', array('conditions' => array('Subscriber.model' => $model, 'Subscriber.foreign_key' => $foreignKey))));
 		break;
  	}
 	

@@ -1,13 +1,13 @@
 <?php
 
-class MailSubscriberFixture extends CakeTestFixture {
+class SubscriberFixture extends CakeTestFixture {
 	
 /**
  * Import
  *
  * @var array
  */
-	public $import = array('config' => 'Mail.MailSubscriber');
+	public $import = array('config' => 'Subscribers.Subscriber');
 
 /**
  * records property

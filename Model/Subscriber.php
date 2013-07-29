@@ -1,9 +1,9 @@
 <?php
-App::uses('MailAppModel', 'Mail.Model');
+App::uses('SubscribersAppModel', 'Subscribers.Model');
 
-class MailSubscriber extends MailAppModel {
+class Subscriber extends SubscribersAppModel {
 	
-	public $name = 'MailSubscriber';
+	public $name = 'Subscriber';
 	
 	public $displayField = 'email';
 	
@@ -13,7 +13,7 @@ class MailSubscriber extends MailAppModel {
 		
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 	public $belongsTo = array(
-		'Subscriber' => array(
+		'User' => array(
 			'className' => 'Users.User',
 			'foreignKey' => 'user_id',
 			'conditions' => '',
