@@ -5,11 +5,9 @@ class Subscriber extends SubscribersAppModel {
 	
 	public $name = 'Subscriber';
 	
-	public $displayField = 'email';
+	public $displayField = 'name';
 	
-	public $validate = array(
-		'email' => array('notempty')
-		); 
+	public $validate = array(); 
 		
 	//The Associations below have been created with all possible keys, those that are not needed can be removed
 	public $belongsTo = array(
