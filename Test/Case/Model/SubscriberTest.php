@@ -42,8 +42,7 @@ class SubscriberTestCase extends CakeTestCase {
  */
 	public function testSubscribers() {
 		$result = $this->Subscriber->find('all');
-		debug($result);
-		break;
+		
 	}
 
 }

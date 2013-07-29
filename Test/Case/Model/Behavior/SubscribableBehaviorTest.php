@@ -29,9 +29,23 @@ if (!class_exists('SubscriberArticle')) {
 	 */
 		public $alias = 'SubscriberArticle';
 		
-		public function afterSave() {
-			// we say in the model when people get subscribed
-			$this->subscribe($this->data['SubscriberArticle']['creator_id']);
+		public function afterSave($created) {
+			if ($created) {
+				// we say in the model when people get subscribed
+				$this->subscribe($this->data['SubscriberArticle']['creator_id']);
+			}
+		}
+		
+		// used to subscribe to the parent on an edit
+		public function articleEdit($data) {
+			$result = null;
+			if ($result = parent::save($data)) {
+				$subscriber['Subscriber']['model'] = 'SubscriberArticle';
+				$subscriber['Subscriber']['foreign_key'] = $data['SubscriberArticle']['id'];
+				$subscriber['Subscriber']['user_id'] = $data['SubscriberArticle']['modifier_id'];
+				$this->subscribe($subscriber);
+			}
+			return $result;
 		}
 	}
 }
@@ -50,7 +64,7 @@ class SubscribableBehaviorTestCase extends CakeTestCase {
 	public $fixtures = array(
 		'app.Condition',
 		'plugin.Users.User',
-		'plugin.Subscribers.Subscribe',
+        'plugin.Subscribers.Subscriber',
 		'plugin.Subscribers.SubscriberArticle',
 		);
 
@@ -92,19 +106,33 @@ class SubscribableBehaviorTestCase extends CakeTestCase {
 	}
 	
 /**
- * Test adding an article and subscribing the adder to that article
+ * Test adding a single subscriber to the parent model record
  */ 
-	public function testAdding() {
-		$before = count($this->Subscriber->find('all'));
+	public function testSubscribe() {
+		$before = $this->Subscriber->find('count');
 		$data['SubscriberArticle'] = array(
 			'title' => 'My New Article',
 			'content' => 'Hello world!',
 			'creator_id' => '100'
 			);
 		$this->SubscriberArticle->save($data);
-		$after = count($this->Subscriber->find('all'));
-		
+		$after = $this->Subscriber->find('count');
 		$this->assertTrue($after > $before);
 	}
+
+/**
+ * Test adding an data[Subscriber][user_id] type of array
+ */
+ 	public function testSubscribers() {
+ 		$before = $this->Subscriber->find('count');
+		
+		$data = $this->SubscriberArticle->find('first');
+		$data['SubscriberArticle']['content'] = 'This is an update, so I want to subscribe';  // eg. notify me and the owner of changes to the article
+		$data['SubscriberArticle']['modifier_id'] = '101';
+		
+		$result = $this->SubscriberArticle->articleEdit($data);	
+		$after = $this->Subscriber->find('count');
+		$this->assertTrue($after > $before);
+ 	}
 
 }

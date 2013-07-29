@@ -78,25 +78,44 @@ class SubscribableBehavior extends ModelBehavior {
  * @return boolean
  * @todo we should probably do a check to see if the person is already subscribed before adding them
  */
- 	public function subscribe($Model, $userIds) {
-		if (is_array($userIds)) {
-			for ($i = 1; $i <= count($userIds); $i++) {
-				$data[$i]['Subscriber']['user_id'] = $userIds[$i];
-				$data[$i]['Subscriber']['email'];
-				
+ 	public function subscribe($Model, $data) {
+		
+		if (is_array($data)) {
+			if (!empty($data[0]['Subscriber'])) {
+				// handle multiple subscribers
+				for ($i = 1; $i <= count($data); $i++) {
+					$subscriber['Subscriber']['user_id'];
+					$subscriber['Subscriber']['email'];
+					// something like : $this->subscribe($Model, $subscriber);  // a call to itself for the save
+				}
+				debug($subscriber);
+				debug('handle many subscribers at once here');
+				// something like $this->subscribe($Model, $)
+				break;
+			} else {
+				// handle a single subscriber 
+				$email = !empty($subscriber['Subscriber']['email']) ? $subscriber['Subscriber']['email'] : $this->Subscriber->User->field('email', array('User.id' => $data['Subscriber']['user_id']));
+				$userId = $data['Subscriber']['user_id'];
+				$subscriber['Subscriber']['email'] =  !empty($email) ? $email : null;
+				$modelName = !empty($data['Subscriber']['model']) ? $data['Subscriber']['model'] : $this->modelName;
+				$foreignKey = $data['Subscriber']['foreign_key'] ? $data['Subscriber']['foreign_key'] : $Model->data[$this->modelName][$this->foreignKey];
 			}
-			debug($data);
-			debug('handle many subscribers at once here');
-			break;
 		} else {
-			$userId = $userIds; // just one
-			$data['Subscriber']['user_id'] = $userId;
-			$data['Subscriber']['email'] = !empty($data['Subscriber']['email']) ? $data['Subscriber']['email'] : $this->Subscriber->User->field('email', array('User.id' => $userId));
-			$data['Subscriber']['model'] = $this->modelName;
-			$data['Subscriber']['foreign_key'] = $Model->data[$this->modelName][$this->foreignKey];
-			$data['Subscriber']['is_active'] = 1;
+			// just a single user id coming in
+			$userId = $data;
+			$email = $this->Subscriber->User->field('email', array('User.id' => $userId));
+			$modelName = $this->modelName;
+			$foreignKey = $Model->data[$this->modelName][$this->foreignKey];
 		}
-		if ($this->Subscriber->saveAll($data)) {
+		
+		// finalize the data before saving
+		$subscriber['Subscriber']['user_id'] = $userId;
+		$subscriber['Subscriber']['email'] = !empty($email) ? $email : null;
+		$subscriber['Subscriber']['model'] = $modelName;
+		$subscriber['Subscriber']['foreign_key'] = $foreignKey;
+		$subscriber['Subscriber']['is_active'] = 1;
+		
+		if ($this->Subscriber->save($subscriber)) {
 			return true;
 		}
 		return false;
