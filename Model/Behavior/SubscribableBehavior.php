@@ -68,6 +68,34 @@ class SubscribableBehavior extends ModelBehavior {
 		$this->Subscriber = ClassRegistry::init('Subscribers.Subscriber');
     	return true;
 	}
+
+
+/**
+ * afterSave is called after a model is saved.
+ * We use this to subscribe users automatically when they create an account
+ *
+ * @param Model $Model Model using this behavior
+ * @param boolean $created True if this save created a new record
+ * @return boolean
+ */
+	public function afterSave(Model $Model, $created, $options = array()) {
+		// create a subscription to particular model foreignKey combinations automatically upon user creation
+		if ($created && $Model->name == 'User') { // might not need this model->name thing in the future, but couldn't envision any use besides user creation at the time of creating this setting
+			if (defined('__SUBSCRIBERS_AUTO_SUBSCRIBE')) {
+				$subscriptions = unserialize(__SUBSCRIBERS_AUTO_SUBSCRIBE);
+				foreach ($subscriptions as $model => $foreignKeys) {
+					$data['Subscriber']['user_id'] = $Model->id;
+					$data['Subscriber']['model'] = $model;
+					foreach ($foreignKeys as $foreignKey) {
+						$data['Subscriber']['foreign_key'] = $foreignKey;
+						$this->subscribe($Model, $data);
+						unset($data);
+					}
+				}
+			}
+		}
+		return parent::afterSave($Model, $created, $options);
+	}
 	
 /**
  * Subscribe method
@@ -79,46 +107,7 @@ class SubscribableBehavior extends ModelBehavior {
  * @todo we should probably do a check to see if the person is already subscribed before adding them
  */
  	public function subscribe($Model, $data) {
-		
-		if (is_array($data)) {
-			if (!empty($data[0]['Subscriber'])) {
-				// handle multiple subscribers
-				for ($i = 1; $i <= count($data); $i++) {
-					$subscriber['Subscriber']['user_id'];
-					$subscriber['Subscriber']['email'];
-					// something like : $this->subscribe($Model, $subscriber);  // a call to itself for the save
-				}
-				debug($subscriber);
-				debug('handle many subscribers at once here');
-				// something like $this->subscribe($Model, $)
-				break;
-			} else {
-				// handle a single subscriber 
-				$email = !empty($subscriber['Subscriber']['email']) ? $subscriber['Subscriber']['email'] : $this->Subscriber->User->field('email', array('User.id' => $data['Subscriber']['user_id']));
-				$userId = $data['Subscriber']['user_id'];
-				$subscriber['Subscriber']['email'] =  !empty($email) ? $email : null;
-				$modelName = !empty($data['Subscriber']['model']) ? $data['Subscriber']['model'] : $this->modelName;
-				$foreignKey = $data['Subscriber']['foreign_key'] ? $data['Subscriber']['foreign_key'] : $Model->data[$this->modelName][$this->foreignKey];
-			}
-		} else {
-			// just a single user id coming in
-			$userId = $data;
-			$email = $this->Subscriber->User->field('email', array('User.id' => $userId));
-			$modelName = $this->modelName;
-			$foreignKey = $Model->data[$this->modelName][$this->foreignKey];
-		}
-		
-		// finalize the data before saving
-		$subscriber['Subscriber']['user_id'] = $userId;
-		$subscriber['Subscriber']['email'] = !empty($email) ? $email : null;
-		$subscriber['Subscriber']['model'] = $modelName;
-		$subscriber['Subscriber']['foreign_key'] = $foreignKey;
-		$subscriber['Subscriber']['is_active'] = 1;
-		
-		if ($this->Subscriber->save($subscriber)) {
-			return true;
-		}
-		return false;
+ 		return $this->Subscriber->subscribe($data);
  	}
 	
 /**
